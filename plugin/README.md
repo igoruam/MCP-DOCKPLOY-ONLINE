@@ -5,7 +5,7 @@ Docker Compose services, databases, domains, deployments and more (~450 tools).
 
 ## Setup
 
-1. Install the plugin: `/plugin install dokploy --marketplace igoruam/MCP-DOCKPLOY-ONLINE`
+1. Install the plugin: `/plugin install bigdev-dokploy --marketplace igoruam/MCP-DOCKPLOY-ONLINE`
 2. Claude opens a sign-in page. Enter your **Dokploy URL** (e.g. `https://dokploy.example.com`)
    and a **Dokploy API key** (Dokploy → Settings → Profile → API/CLI → Generate).
 3. Done. Ask things like "list my Dokploy projects" or "redeploy the app called web".

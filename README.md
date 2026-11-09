@@ -25,7 +25,7 @@ Claude / ChatGPT ──OAuth──▶ this server (on your Dokploy) ──x-api-
 
 - **Claude.ai / Cowork / ChatGPT**: add a custom connector with `https://mcp.example.com/mcp`; a login
   page asks for Dokploy URL + API key.
-- **Claude Code**: `/plugin install dokploy --marketplace igoruam/MCP-DOCKPLOY-ONLINE`, then `/mcp` → authenticate.
+- **Claude Code**: `/plugin install bigdev-dokploy --marketplace igoruam/MCP-DOCKPLOY-ONLINE`, then `/mcp` → authenticate.
 - **Headers instead of OAuth** (clients that can set headers):
   `X-Dokploy-Url: https://dokploy.example.com` and `X-Dokploy-Api-Key: …`.
 

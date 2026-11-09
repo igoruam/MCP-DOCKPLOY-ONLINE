@@ -1,10 +1,12 @@
 {
-  "name": "dokploy-online",
-  "description": "Dokploy MCP plugin backed by a hosted MCP server",
-  "owner": { "name": "BigDev" },
+  "name": "bigdev-plugins",
+  "description": "BigDev plugins: hosted MCP server for managing Dokploy",
+  "owner": {
+    "name": "BigDev"
+  },
   "plugins": [
     {
-      "name": "dokploy",
+      "name": "bigdev-dokploy",
       "source": "./plugin",
       "description": "Manage your Dokploy projects, apps, databases and deployments from Claude. Asks only for your Dokploy URL and API key."
     }

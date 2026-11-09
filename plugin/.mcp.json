@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "dokploy": {
+    "bigdev-dokploy": {
       "type": "http",
       "url": "https://mcp.bigdevlab.it/mcp"
     }
