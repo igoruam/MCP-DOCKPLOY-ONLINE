@@ -1,7 +1,7 @@
 {
   "name": "dokploy-online",
   "description": "Dokploy MCP plugin backed by a hosted MCP server",
-  "owner": { "name": "igoruam" },
+  "owner": { "name": "BigDev" },
   "plugins": [
     {
       "name": "dokploy",
