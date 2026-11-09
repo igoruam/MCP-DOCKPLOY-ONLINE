@@ -134,16 +134,16 @@ function normalizeUrl(raw: string): string {
 }
 
 export function registerOAuthRoutes(app: Hono) {
-  const protectedResource = (c: Context) =>
+  const protectedResource = (path: string) => (c: Context) =>
     c.json({
-      resource: `${baseUrl(c)}/mcp`,
+      resource: `${baseUrl(c)}${path}`,
       authorization_servers: [baseUrl(c)],
       bearer_methods_supported: ["header"],
       scopes_supported: ["mcp"],
       resource_name: "Dokploy MCP",
     });
-  app.get("/.well-known/oauth-protected-resource", protectedResource);
-  app.get("/.well-known/oauth-protected-resource/mcp", protectedResource);
+  app.get("/.well-known/oauth-protected-resource", protectedResource(""));
+  app.get("/.well-known/oauth-protected-resource/mcp", protectedResource("/mcp"));
 
   const authServer = (c: Context) => {
     const base = baseUrl(c);

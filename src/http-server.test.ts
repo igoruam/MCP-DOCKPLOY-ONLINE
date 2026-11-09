@@ -67,7 +67,7 @@ describe("hosted MCP server (stateless, per-request credentials)", () => {
     });
     expect(res.status).toBe(401);
     expect(res.headers.get("www-authenticate")).toMatch(
-      /^Bearer resource_metadata=".*\/\.well-known\/oauth-protected-resource"$/,
+      /^Bearer resource_metadata=".*\/\.well-known\/oauth-protected-resource\/mcp"$/,
     );
   });
 
@@ -130,6 +130,28 @@ describe("hosted MCP server (stateless, per-request credentials)", () => {
     await client.close();
   });
 
+  it("also serves MCP at the root URL (connector configured without /mcp)", async () => {
+    const root = mcpUrl.replace("/mcp", "/");
+    const noAuth = await fetch(root, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        accept: "application/json, text/event-stream",
+      },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }),
+    });
+    expect(noAuth.status).toBe(401);
+    expect(noAuth.headers.get("www-authenticate")).toMatch(/oauth-protected-resource"$/);
+    const client = new Client({ name: "root", version: "1.0.0" });
+    await client.connect(
+      new StreamableHTTPClientTransport(new URL(root), {
+        requestInit: { headers: { "x-dokploy-url": fakeUrl, "x-dokploy-api-key": "good-key" } },
+      }),
+    );
+    expect((await client.listTools()).tools.length).toBeGreaterThan(100);
+    await client.close();
+  });
+
   it("answers /health and rejects GET /mcp", async () => {
     const base = mcpUrl.replace("/mcp", "");
     expect((await fetch(`${base}/health`)).status).toBe(200);
@@ -181,7 +203,7 @@ describe("OAuth flow (what Claude.ai / ChatGPT do)", () => {
     });
 
   it("publishes discovery metadata", async () => {
-    const pr = await (await fetch(`${base()}/.well-known/oauth-protected-resource`)).json();
+    const pr = await (await fetch(`${base()}/.well-known/oauth-protected-resource/mcp`)).json();
     expect(pr.resource).toBe(mcpUrl);
     const as = await (await fetch(`${base()}/.well-known/oauth-authorization-server`)).json();
     expect(as.code_challenge_methods_supported).toEqual(["S256"]);

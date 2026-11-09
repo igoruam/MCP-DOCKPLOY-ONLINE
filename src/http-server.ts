@@ -62,7 +62,7 @@ export function createApp() {
 
   app.get("/health", (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }));
 
-  app.post("/mcp", async (c) => {
+  const mcpPost = async (c: import("hono").Context<{ Bindings: HttpBindings }>) => {
     const { incoming, outgoing } = c.env;
     let body: unknown;
     try {
@@ -82,10 +82,11 @@ export function createApp() {
     }
 
     // Credentials: OAuth bearer token (Claude.ai, ChatGPT, Claude Code) or X-Dokploy-* headers.
+    const isRoot = new URL(c.req.url).pathname === "/";
     const challenge = (error?: string) =>
-      `Bearer resource_metadata="${baseUrl(c as never)}/.well-known/oauth-protected-resource"${
-        error ? `, error="${error}"` : ""
-      }`;
+      `Bearer resource_metadata="${baseUrl(c as never)}/.well-known/oauth-protected-resource${
+        isRoot ? "" : "/mcp"
+      }"${error ? `, error="${error}"` : ""}`;
     const bearer = c.req.header("authorization")?.match(/^Bearer\s+(.+)$/i)?.[1];
     if (bearer) {
       const token = verifyAccessToken(bearer);
@@ -133,13 +134,23 @@ export function createApp() {
       });
       return c.json(jsonrpcError(-32603, "Internal server error"), 500);
     }
-  });
+  };
+
+  // Same endpoint at "/" so a connector URL without "/mcp" also works.
+  app.post("/mcp", mcpPost);
+  app.post("/", mcpPost);
 
   // Stateless mode: no server-initiated streams and no sessions to terminate.
   const methodNotAllowed = (c: import("hono").Context) =>
     c.json(jsonrpcError(-32000, "Method not allowed: this server is stateless"), 405);
   app.get("/mcp", methodNotAllowed);
   app.delete("/mcp", methodNotAllowed);
+  app.delete("/", methodNotAllowed);
+  app.get("/", (c) =>
+    c.req.header("accept")?.includes("text/event-stream")
+      ? methodNotAllowed(c)
+      : c.json({ name: "Dokploy MCP", mcp: `${baseUrl(c as never)}/mcp`, health: "/health" }),
+  );
 
   return app;
 }
