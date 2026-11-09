@@ -7,8 +7,8 @@ page, and the tool calls/responses relayed between your AI client and your Dokpl
 API key exist only inside an AES-256-GCM encrypted token that your AI client holds and sends back
 with each request; the server decrypts it in memory for the duration of a request.
 
-**Logging.** Operational logs record tool names, HTTP status codes and durations. Tool inputs are
-logged with secret-looking fields redacted; API keys, tokens and Dokploy responses are not logged.
+**Logging.** Operational logs record only tool names, HTTP methods/paths, status codes and error messages.
+Tool inputs, Dokploy responses, URLs and API keys are never logged.
 
 **Third parties.** None. Data is sent only to the Dokploy URL you provide. No analytics, no tracking.
 

@@ -14,7 +14,7 @@ Docker Compose services, databases, domains, deployments and more (~450 tools).
 
 - Your requests to Dokploy are relayed by the hosted MCP server to **your** Dokploy URL, using your API key.
 - The URL and key are verified once at sign-in and then kept only inside an encrypted token held by Claude.
-  The server has no database and does not log request bodies, URLs or keys.
+  The server has no database and never logs tool inputs, Dokploy responses, URLs or keys.
 - Revoke access any time by deleting the API key in Dokploy.
 
 The key grants the same permissions you have in Dokploy; destructive tools (delete, remove, stop) are

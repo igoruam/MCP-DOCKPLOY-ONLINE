@@ -14,7 +14,8 @@ export function createHandler(tool: ToolDefinition) {
     const redact = <T>(value: T): T => (redactEnv ? redactSensitive(value, redactFields) : value);
 
     try {
-      logger.info(`Executing tool: ${tool.name}`, { input: redact(input) });
+      // Tool inputs can contain personal data (names, emails): never log them.
+      logger.info(`Executing tool: ${tool.name}`);
 
       const apiClient = createApiClient(resolveCredentials());
       const response =
