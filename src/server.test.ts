@@ -205,4 +205,15 @@ describe("MCP server tools/list", () => {
       ).toBe("object");
     }
   });
+
+  it("emits draft 2020-12 numeric exclusive bounds (dnsProvider ttl)", async () => {
+    const tools = await getToolList();
+    const create = tools.find((tool) => tool.name === "dnsProvider-createRecord");
+    expect(create).toBeDefined();
+    const ttl = (create?.inputSchema.properties as Record<string, Record<string, unknown>>).ttl;
+    expect(ttl?.exclusiveMinimum).toBe(0);
+    expect(ttl).not.toHaveProperty("minimum");
+    const offenders = JSON.stringify(tools).match(/"exclusive(Minimum|Maximum)":(true|false)/g);
+    expect(offenders).toBeNull();
+  });
 });

@@ -142,6 +142,31 @@ function stripUnsupportedRegexPatterns(value: unknown): void {
   }
 }
 
+// Older drafts express `.gt(n)` as `minimum: n, exclusiveMinimum: true`. Draft 2020-12 (and
+// Anthropic's validator) want `exclusiveMinimum: n`; a boolean there rejects the whole tool.
+function normalizeExclusiveBounds(value: unknown): void {
+  if (value === null || typeof value !== "object") return;
+  if (Array.isArray(value)) {
+    for (const item of value) normalizeExclusiveBounds(item);
+    return;
+  }
+  const record = value as Record<string, unknown>;
+  for (const [flag, bound] of [
+    ["exclusiveMinimum", "minimum"],
+    ["exclusiveMaximum", "maximum"],
+  ] as const) {
+    if (typeof record[flag] === "boolean") {
+      if (record[flag] === true && typeof record[bound] === "number") {
+        record[flag] = record[bound];
+        delete record[bound];
+      } else {
+        delete record[flag];
+      }
+    }
+  }
+  for (const child of Object.values(record)) normalizeExclusiveBounds(child);
+}
+
 // Claude's API requires JSON Schema draft 2020-12. The MCP SDK's built-in
 // Zod→JSON Schema converter emits draft-07 by default, which causes a 400
 // error on tools/list. We bypass the SDK's auto-generated handler by
@@ -155,6 +180,7 @@ function toDraft2020_12JsonSchema(schema: ZodObject<ZodRawShape>): Record<string
 
   stripNestedSchemaKeys(result);
   stripUnsupportedRegexPatterns(result);
+  normalizeExclusiveBounds(result);
   result.$schema = JSON_SCHEMA_2020_12;
   return result;
 }
