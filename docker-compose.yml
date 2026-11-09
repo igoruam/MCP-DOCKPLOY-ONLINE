@@ -1,0 +1,17 @@
+# Deploy on Dokploy as a "Compose" service (or "Application" with the Dockerfile).
+# No DOKPLOY_URL / DOKPLOY_API_KEY here on purpose: every user sends their own
+# through request headers. Attach a Dokploy Domain (e.g. mcp.example.com) to the
+# `dokploy-mcp` service on container port 3000 with HTTPS (Let's Encrypt).
+services:
+  dokploy-mcp:
+    build: .
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      - MCP_TRANSPORT=http
+      - PORT=3000
+      # Optional hardening: only allow these Dokploy hosts (comma separated).
+      - DOKPLOY_ALLOWED_HOSTS=${DOKPLOY_ALLOWED_HOSTS:-}
+      # Optional: shrink the toolset (all | minimal | core | deploy | databases | git).
+      - DOKPLOY_TOOL_PRESET=${DOKPLOY_TOOL_PRESET:-all}

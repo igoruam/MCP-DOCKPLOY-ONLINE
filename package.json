@@ -1,0 +1,58 @@
+{
+  "name": "mcp-dokploy-online",
+  "version": "1.0.0",
+  "description": "Hosted multi-tenant MCP server for Dokploy (per-request URL + API key), based on @dokploy/mcp",
+  "main": "build/index.js",
+  "bin": {
+    "dokploy-mcp": "build/index.js"
+  },
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "build": "pnpm run clean && tsc && chmod 755 build/index.js",
+    "dev": "tsc --watch",
+    "start:stdio": "node --env-file=.env build/index.js",
+    "start:http": "node --env-file=.env build/index.js --http",
+    "dev:http": "pnpm run build && pnpm run start:http",
+    "fetch-openapi": "tsx scripts/fetch-openapi.ts",
+    "generate": "tsx scripts/generate-tools.ts",
+    "generate:all": "pnpm fetch-openapi && pnpm generate",
+    "lint": "biome check",
+    "lint:fix": "biome check --fix",
+    "format": "biome format --write",
+    "format:check": "biome format",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf build",
+    "precommit": "biome check && pnpm run type-check",
+    "test": "vitest run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/igoruam/MCP-DOCKPLOY-ONLINE.git"
+  },
+  "keywords": [
+    "modelcontextprotocol",
+    "mcp",
+    "dokploy"
+  ],
+  "author": "Henrique Andrade <developer@henriqueandrade.dev>",
+  "license": "Apache-2.0",
+  "type": "module",
+  "dependencies": {
+    "@hono/node-server": "^1.19.13",
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "axios": "^1.9.0",
+    "hono": "^4.12.12",
+    "zod": "^3.25.28",
+    "zod-to-json-schema": "^3.25.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.10",
+    "@types/node": "^22.15.21",
+    "json-schema-to-zod": "^2.8.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.6"
+  }
+}

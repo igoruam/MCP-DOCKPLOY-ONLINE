@@ -1,0 +1,12 @@
+{
+  "name": "dokploy-online",
+  "description": "Dokploy MCP plugin backed by a hosted MCP server",
+  "owner": { "name": "igoruam" },
+  "plugins": [
+    {
+      "name": "dokploy",
+      "source": "./plugin",
+      "description": "Manage your Dokploy projects, apps, databases and deployments from Claude. Asks only for your Dokploy URL and API key."
+    }
+  ]
+}
