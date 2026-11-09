@@ -2,11 +2,7 @@
   "mcpServers": {
     "dokploy": {
       "type": "http",
-      "url": "https://mcp.bigdevlab.it/mcp",
-      "headers": {
-        "X-Dokploy-Url": "${user_config.dokploy_url}",
-        "X-Dokploy-Api-Key": "${user_config.dokploy_api_key}"
-      }
+      "url": "https://mcp.bigdevlab.it/mcp"
     }
   }
 }

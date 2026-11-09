@@ -1,7 +1,10 @@
-# Deploy on Dokploy as a "Compose" service (or "Application" with the Dockerfile).
-# No DOKPLOY_URL / DOKPLOY_API_KEY here on purpose: every user sends their own
-# through request headers. Attach a Dokploy Domain (e.g. mcp.example.com) to the
-# `dokploy-mcp` service on container port 3000 with HTTPS (Let's Encrypt).
+# Deploy on Dokploy as a "Compose" service. Attach a Domain (e.g. mcp.example.com) to the
+# `dokploy-mcp` service, container port 3000, HTTPS (Let's Encrypt).
+#
+# Required environment (Dokploy → service → Environment):
+#   MCP_SECRET=<openssl rand -hex 32>          encrypts the OAuth tokens (keep it stable!)
+#   PUBLIC_URL=https://mcp.example.com         the public URL of this server (no trailing slash)
+# Do NOT set DOKPLOY_URL / DOKPLOY_API_KEY: every user brings their own.
 services:
   dokploy-mcp:
     build: .
@@ -11,7 +14,9 @@ services:
     environment:
       - MCP_TRANSPORT=http
       - PORT=3000
-      # Optional hardening: only allow these Dokploy hosts (comma separated).
+      - MCP_SECRET=${MCP_SECRET:?set MCP_SECRET (openssl rand -hex 32)}
+      - PUBLIC_URL=${PUBLIC_URL:?set PUBLIC_URL (https://mcp.example.com)}
+      # Optional hardening / tuning
       - DOKPLOY_ALLOWED_HOSTS=${DOKPLOY_ALLOWED_HOSTS:-}
-      # Optional: shrink the toolset (all | minimal | core | deploy | databases | git).
       - DOKPLOY_TOOL_PRESET=${DOKPLOY_TOOL_PRESET:-all}
+      - OAUTH_ALLOWED_REDIRECT_HOSTS=${OAUTH_ALLOWED_REDIRECT_HOSTS:-}

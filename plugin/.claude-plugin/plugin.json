@@ -1,23 +1,19 @@
 {
   "name": "dokploy",
   "version": "1.0.0",
-  "description": "Dokploy MCP via a hosted server. You only provide your Dokploy URL and API key.",
-  "author": { "name": "igoruam" },
+  "description": "Manage Dokploy projects, applications, databases, domains and deployments from Claude. Sign in once with your Dokploy URL and API key.",
+  "author": {
+    "name": "igoruam"
+  },
+  "homepage": "https://github.com/igoruam/MCP-DOCKPLOY-ONLINE",
   "repository": "https://github.com/igoruam/MCP-DOCKPLOY-ONLINE",
   "license": "Apache-2.0",
-  "userConfig": {
-    "dokploy_url": {
-      "type": "string",
-      "title": "Dokploy URL",
-      "description": "Public URL of your Dokploy panel, e.g. https://dokploy.example.com",
-      "required": true
-    },
-    "dokploy_api_key": {
-      "type": "string",
-      "title": "Dokploy API key",
-      "description": "Dokploy > Settings > Profile > API/CLI > Generate API key",
-      "required": true,
-      "sensitive": true
-    }
-  }
+  "keywords": [
+    "dokploy",
+    "deployment",
+    "devops",
+    "docker",
+    "mcp"
+  ],
+  "privacyPolicyUrl": "https://github.com/igoruam/MCP-DOCKPLOY-ONLINE/blob/main/PRIVACY.md"
 }

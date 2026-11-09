@@ -4,6 +4,8 @@ import type { HttpBindings } from "@hono/node-server";
 import { serve } from "@hono/node-server";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { baseUrl, registerOAuthRoutes, verifyAccessToken } from "./oauth/routes.js";
 import { createServer } from "./server.js";
 import { contextFromHeaders, requestContext } from "./utils/context.js";
 import { createLogger } from "./utils/logger.js";
@@ -24,7 +26,8 @@ function neverResolve(): Promise<never> {
 /**
  * Stateless, multi-tenant Streamable HTTP server.
  *
- * Every request carries the caller's own Dokploy instance and API key:
+ * Auth is OAuth 2.1 (PKCE + dynamic client registration; the login page asks for the
+ * Dokploy URL and API key) or, alternatively, per-request headers:
  *   X-Dokploy-Url       https://dokploy.example.com
  *   X-Dokploy-Api-Key   <Dokploy API key>
  * Optional: X-Dokploy-Tool-Preset, X-Dokploy-Enabled-Tags, X-Dokploy-Disabled-Tags,
@@ -33,6 +36,29 @@ function neverResolve(): Promise<never> {
  */
 export function createApp() {
   const app = new Hono<{ Bindings: HttpBindings }>();
+
+  app.use(
+    "*",
+    cors({
+      origin: "*",
+      allowHeaders: [
+        "Authorization",
+        "Content-Type",
+        "Accept",
+        "Mcp-Protocol-Version",
+        "Mcp-Session-Id",
+        "X-Dokploy-Url",
+        "X-Dokploy-Api-Key",
+        "X-Dokploy-Tool-Preset",
+        "X-Dokploy-Enabled-Tags",
+        "X-Dokploy-Disabled-Tags",
+        "X-Dokploy-Custom-Headers",
+      ],
+      exposeHeaders: ["WWW-Authenticate", "Mcp-Session-Id"],
+    }),
+  );
+
+  registerOAuthRoutes(app as unknown as Hono);
 
   app.get("/health", (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }));
 
@@ -55,7 +81,31 @@ export function createApp() {
       );
     }
 
+    // Credentials: OAuth bearer token (Claude.ai, ChatGPT, Claude Code) or X-Dokploy-* headers.
+    const challenge = (error?: string) =>
+      `Bearer resource_metadata="${baseUrl(c as never)}/.well-known/oauth-protected-resource"${
+        error ? `, error="${error}"` : ""
+      }`;
+    const bearer = c.req.header("authorization")?.match(/^Bearer\s+(.+)$/i)?.[1];
+    if (bearer) {
+      const token = verifyAccessToken(bearer);
+      if (!token) {
+        return c.json(jsonrpcError(-32001, "Invalid or expired access token"), 401, {
+          "WWW-Authenticate": challenge("invalid_token"),
+        });
+      }
+      context.dokployUrl = token.u;
+      context.apiKey = token.k;
+    }
+    if (!context.dokployUrl || !context.apiKey) {
+      return c.json(jsonrpcError(-32001, "Authentication required"), 401, {
+        "WWW-Authenticate": challenge(),
+      });
+    }
+
     try {
+      outgoing.setHeader("Access-Control-Allow-Origin", "*");
+      outgoing.setHeader("Access-Control-Expose-Headers", "WWW-Authenticate, Mcp-Session-Id");
       const server = createServer({
         toolPreset: context.toolPreset,
         enabledTags: context.enabledTags,
