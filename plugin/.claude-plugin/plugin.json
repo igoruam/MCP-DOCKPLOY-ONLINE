@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Manage Dokploy projects, applications, databases, domains and deployments from Claude. Sign in once with your Dokploy URL and API key.",
   "author": {
-    "name": "igoruam"
+    "name": "BigDev"
   },
   "homepage": "https://github.com/igoruam/MCP-DOCKPLOY-ONLINE",
   "repository": "https://github.com/igoruam/MCP-DOCKPLOY-ONLINE",
